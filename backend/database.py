@@ -29,5 +29,4 @@ def get_db():
         db.close()
 
 
-print("DATABASE_URL:", DATABASE_URL)
 print("ENGINE:", engine)
