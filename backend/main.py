@@ -11,7 +11,8 @@ from fastapi import (
     HTTPException,
     UploadFile,
     File,
-    Form
+    Form,
+    Request
 )
 
 from fastapi.security import (
@@ -1223,6 +1224,12 @@ def get_complaint_details(
             detail="Complaint does not belong to your department"
         )
 
+    complaint.department_name = (
+        complaint.department.name
+        if complaint.department
+        else None
+    )
+
     return complaint
 
 
@@ -1528,6 +1535,7 @@ def update_admin_department(
 
 @app.post("/upload-image")
 async def upload_image(
+    request: Request,
     image: UploadFile = File(...),
     current_user: User = Depends(
         get_current_user
@@ -1583,8 +1591,12 @@ async def upload_image(
     ) as file:
         file.write(contents)
 
+    base_url = str(
+        request.base_url
+    ).rstrip("/")
+
     image_url = (
-        f"http://127.0.0.1:8000/uploads/"
+        f"{base_url}/uploads/"
         f"{unique_filename}"
     )
 
@@ -1801,3 +1813,30 @@ async def create_complaint_with_image(
     db.refresh(new_complaint)
 
     return new_complaint
+
+
+@app.get("/reverse-geocode")
+def reverse_geocode_location(
+    latitude: float,
+    longitude: float
+):
+    from geopy.geocoders import Nominatim
+
+    geolocator = Nominatim(
+        user_agent="civicresolve"
+    )
+
+    location = geolocator.reverse(
+        (latitude, longitude),
+        language="en"
+    )
+
+    if not location:
+        raise HTTPException(
+            status_code=404,
+            detail="Address could not be determined"
+        )
+
+    return {
+        "address": location.address
+    }

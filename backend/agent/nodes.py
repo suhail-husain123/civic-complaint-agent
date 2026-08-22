@@ -6,7 +6,6 @@ from google.genai import types
 from pydantic import BaseModel, Field
 
 from agent.state import ComplaintAgentState
-from agent.memory import get_complaint_memory
 from agent.tools import get_department_by_name
 from agent.prompts import COMPLAINT_ANALYSIS_PROMPT
 
@@ -74,6 +73,14 @@ def load_memory(
         similar_text = []
 
         for item in similar_complaints:
+
+            if (
+                not item.get("ai_category")
+                or not item.get("final_category")
+                or not item.get("final_priority")
+            ):
+                continue
+
             similar_text.append(
                 (
                     f"Past complaint: {item['description']}\n"
@@ -121,7 +128,6 @@ def analyze_complaint(
         historical_context=historical_context
     )
 
-    print("Calling Gemini...")
 
     response = client.models.generate_content(
         model="gemini-3.6-flash",
@@ -178,20 +184,33 @@ def auto_route(
         category
     )
 
+    print(
+        "DEPARTMENT NAME:",
+        department_name
+    )
+
     if not department_name:
         return {
-            "status": "MANUAL_REVIEW_REQUIRED",
+            "status":
+                "MANUAL_REVIEW_REQUIRED",
             "needs_human_review": True,
-            "error": "No department mapping found"
+            "error":
+                "No department mapping found"
         }
 
     department = get_department_by_name(
         department_name
     )
 
+    print(
+        "DEPARTMENT FOUND:",
+        department
+    )
+
     if not department:
         return {
-            "status": "MANUAL_REVIEW_REQUIRED",
+            "status":
+                "MANUAL_REVIEW_REQUIRED",
             "needs_human_review": True,
             "error": (
                 f"{department_name} "
@@ -200,14 +219,14 @@ def auto_route(
         }
 
     return {
-        "department_id": department["id"],
-        "department_name": department["name"],
+        "department_id":
+            department["id"],
+        "department_name":
+            department["name"],
         "status": "ASSIGNED",
         "needs_human_review": False,
         "error": None
     }
-
-
 def manual_review(
     state: ComplaintAgentState
 ):

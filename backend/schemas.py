@@ -85,6 +85,7 @@ class ComplaintResponse(BaseModel):
     id: int
     citizen_id: int
     department_id: Optional[int] = None
+    department_name: Optional[str] = None
 
     description: str
 
