@@ -46,13 +46,14 @@ export async function apiRequest(
   }
 
 
-  // JWT expired / invalid
-  if (response.status === 401) {
-
+  // Handle expired / invalid JWT
+  // but NOT normal login failures
+  if (
+    response.status === 401 &&
+    endpoint !== "/login"
+  ) {
     localStorage.removeItem("token")
 
-    // Avoid redirect loop while
-    // user is already on login page
     if (
       window.location.pathname !==
       "/login"
@@ -68,6 +69,7 @@ export async function apiRequest(
   }
 
 
+  // Handle all other API errors
   if (!response.ok) {
     throw new Error(
       data?.detail ||
