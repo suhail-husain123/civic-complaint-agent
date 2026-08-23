@@ -1611,6 +1611,7 @@ async def upload_image(
     status_code=201
 )
 async def create_complaint_with_image(
+    request:Request,
     description: str = Form(...),
     latitude: Optional[float] = Form(None),
     longitude: Optional[float] = Form(None),
@@ -1653,14 +1654,20 @@ async def create_complaint_with_image(
 
         contents = await image.read()
 
-        with open(file_path, "wb") as file:
+        with open(
+            file_path,
+            "wb"
+        ) as file:
             file.write(contents)
 
+        base_url = str(
+            request.base_url
+        ).rstrip("/")
+
         image_url = (
-            f"http://127.0.0.1:8000/uploads/"
+            f"{base_url}/uploads/"
             f"{unique_filename}"
         )
-
     final_address = address
 
     if (
