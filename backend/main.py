@@ -1595,8 +1595,13 @@ async def upload_image(
     response_model=ComplaintResponse,
     status_code=201
 )
+@app.post(
+    "/complaints-with-image",
+    response_model=ComplaintResponse,
+    status_code=201
+)
 async def create_complaint_with_image(
-    request:Request,
+    request: Request,
     description: str = Form(...),
     latitude: Optional[float] = Form(None),
     longitude: Optional[float] = Form(None),
@@ -1607,6 +1612,8 @@ async def create_complaint_with_image(
         require_roles(UserRole.CITIZEN)
     )
 ):
+    image_url = None
+
     if image:
         allowed_types = [
             "image/jpeg",
@@ -1627,9 +1634,8 @@ async def create_complaint_with_image(
             folder="civicresolve/complaints"
         )
 
-        image_url = upload_result[
-            "secure_url"
-        ]
+        image_url = upload_result["secure_url"]
+
     if (
         latitude is not None
         and longitude is not None
