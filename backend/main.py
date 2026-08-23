@@ -137,16 +137,22 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-FRONTEND_URL = os.getenv(
-    "FRONTEND_URL",
+
+FRONTEND_URL = os.getenv("FRONTEND_URL")
+
+allowed_origins = [
     "http://localhost:5173"
-)
+]
+
+if FRONTEND_URL:
+    allowed_origins.append(
+        FRONTEND_URL.rstrip("/")
+    )
+
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        FRONTEND_URL
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
