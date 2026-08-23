@@ -92,6 +92,23 @@ from fastapi.staticfiles import StaticFiles
 
 from fastapi.middleware.cors import CORSMiddleware
 
+import cloudinary
+import cloudinary.uploader
+
+cloudinary.config(
+    cloud_name=os.getenv(
+        "CLOUDINARY_CLOUD_NAME"
+    ),
+    api_key=os.getenv(
+        "CLOUDINARY_API_KEY"
+    ),
+    api_secret=os.getenv(
+        "CLOUDINARY_API_SECRET"
+    ),
+    secure=True
+)
+
+
 # -------------------------
 # BACKGROUND SCHEDULER
 # -------------------------
@@ -1541,7 +1558,6 @@ def update_admin_department(
 
 @app.post("/upload-image")
 async def upload_image(
-    request: Request,
     image: UploadFile = File(...),
     current_user: User = Depends(
         get_current_user
@@ -1562,53 +1578,16 @@ async def upload_image(
             )
         )
 
-    if not image.filename:
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid filename"
-        )
-
-    file_extension = (
-        image.filename
-        .rsplit(".", 1)[-1]
-        .lower()
-    )
-
-    unique_filename = (
-        f"{uuid.uuid4()}."
-        f"{file_extension}"
-    )
-
-    os.makedirs(
-        "uploads",
-        exist_ok=True
-    )
-
-    file_path = os.path.join(
-        "uploads",
-        unique_filename
-    )
-
     contents = await image.read()
 
-    with open(
-        file_path,
-        "wb"
-    ) as file:
-        file.write(contents)
-
-    base_url = str(
-        request.base_url
-    ).rstrip("/")
-
-    image_url = (
-        f"{base_url}/uploads/"
-        f"{unique_filename}"
+    upload_result = cloudinary.uploader.upload(
+        contents,
+        folder="civicresolve/resolutions"
     )
 
     return {
-        "filename": unique_filename,
-        "image_url": image_url
+        "image_url":
+            upload_result["secure_url"]
     }
 
 @app.post(
@@ -1628,8 +1607,6 @@ async def create_complaint_with_image(
         require_roles(UserRole.CITIZEN)
     )
 ):
-    image_url = None
-
     if image:
         allowed_types = [
             "image/jpeg",
@@ -1643,39 +1620,16 @@ async def create_complaint_with_image(
                 detail="Only JPEG, PNG and WEBP images are allowed"
             )
 
-        file_extension = (
-            image.filename
-            .rsplit(".", 1)[-1]
-            .lower()
-        )
-
-        unique_filename = (
-            f"{uuid.uuid4()}.{file_extension}"
-        )
-
-        file_path = os.path.join(
-            "uploads",
-            unique_filename
-        )
-
         contents = await image.read()
 
-        with open(
-            file_path,
-            "wb"
-        ) as file:
-            file.write(contents)
-
-        base_url = str(
-            request.base_url
-        ).rstrip("/")
-
-        image_url = (
-            f"{base_url}/uploads/"
-            f"{unique_filename}"
+        upload_result = cloudinary.uploader.upload(
+            contents,
+            folder="civicresolve/complaints"
         )
-    final_address = address
 
+        image_url = upload_result[
+            "secure_url"
+        ]
     if (
         latitude is not None
         and longitude is not None
