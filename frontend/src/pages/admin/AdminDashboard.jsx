@@ -109,14 +109,21 @@ function AdminDashboard() {
     ).length
 
 
-  const manualReviewComplaints =
-    dashboard?.manual_review_required ??
-    dashboard?.manual_review_complaints ??
+  const resolvedComplaints =
+    dashboard?.resolved_complaints ??
     complaints.filter(
       (complaint) =>
         complaint.status ===
-          "MANUAL_REVIEW_REQUIRED" ||
-        complaint.requires_human_review === true
+        "RESOLVED"
+    ).length
+
+
+  const inProgressComplaints =
+    dashboard?.in_progress_complaints ??
+    complaints.filter(
+      (complaint) =>
+        complaint.status ===
+        "IN_PROGRESS"
     ).length
 
 
@@ -134,9 +141,7 @@ function AdminDashboard() {
         (complaint) =>
           complaint.priority ===
             "CRITICAL" ||
-          complaint.is_escalated === true ||
-          complaint.status ===
-            "MANUAL_REVIEW_REQUIRED"
+          complaint.is_escalated === true
       )
       .sort(
         (a, b) =>
@@ -172,7 +177,7 @@ function AdminDashboard() {
               </h1>
 
               <p className="page-subtitle">
-                Monitor, review and resolve
+                Monitor, manage and resolve
                 complaints assigned to your
                 department.
               </p>
@@ -272,17 +277,17 @@ function AdminDashboard() {
             <div className="dashboard-metric-card">
 
               <div className="metric-icon metric-purple">
-                AI
+                ✓
               </div>
 
               <div className="metric-content">
 
                 <span>
-                  Manual Review
+                  Resolved
                 </span>
 
                 <strong>
-                  {manualReviewComplaints}
+                  {resolvedComplaints}
                 </strong>
 
               </div>
@@ -299,7 +304,7 @@ function AdminDashboard() {
             <div className="dashboard-ai-content">
 
               <span className="dashboard-ai-label">
-                HUMAN + AI
+                DEPARTMENT OPERATIONS
               </span>
 
               <h2>
@@ -307,10 +312,11 @@ function AdminDashboard() {
               </h2>
 
               <p>
-                CivicResolve handles automatic
-                classification and routing, while
-                your department reviews uncertain,
-                critical and escalated cases.
+                CivicResolve automatically
+                classifies and routes complaints,
+                while your department manages
+                assigned, critical and escalated
+                cases.
               </p>
 
             </div>
@@ -323,11 +329,11 @@ function AdminDashboard() {
                 className="btn btn-secondary"
                 onClick={() =>
                   navigate(
-                    "/admin/manual-review"
+                    "/admin/complaints"
                   )
                 }
               >
-                Manual Review
+                View Complaints
               </button>
 
               <button
@@ -390,24 +396,24 @@ function AdminDashboard() {
               className="admin-action-tile"
               onClick={() =>
                 navigate(
-                  "/admin/manual-review"
+                  "/admin/complaints"
                 )
               }
             >
 
               <div className="admin-action-tile-icon purple">
-                AI
+                ◷
               </div>
 
               <div>
 
                 <h3>
-                  Manual Review
+                  In Progress
                 </h3>
 
                 <p>
-                  Verify or override uncertain
-                  AI decisions.
+                  Continue working on active
+                  department complaints.
                 </p>
 
               </div>
@@ -475,8 +481,8 @@ function AdminDashboard() {
                     </h2>
 
                     <p>
-                      Critical, escalated and
-                      manual-review complaints.
+                      Critical and escalated
+                      complaints.
                     </p>
 
                   </div>
@@ -590,6 +596,26 @@ function AdminDashboard() {
 
                     <div>
 
+                      <span className="dashboard-status-dot purple">
+                      </span>
+
+                      <span>
+                        In Progress
+                      </span>
+
+                    </div>
+
+                    <strong>
+                      {inProgressComplaints}
+                    </strong>
+
+                  </div>
+
+
+                  <div className="dashboard-status-item">
+
+                    <div>
+
                       <span className="dashboard-status-dot red">
                       </span>
 
@@ -601,26 +627,6 @@ function AdminDashboard() {
 
                     <strong>
                       {criticalComplaints}
-                    </strong>
-
-                  </div>
-
-
-                  <div className="dashboard-status-item">
-
-                    <div>
-
-                      <span className="dashboard-status-dot purple">
-                      </span>
-
-                      <span>
-                        Manual Review
-                      </span>
-
-                    </div>
-
-                    <strong>
-                      {manualReviewComplaints}
                     </strong>
 
                   </div>
@@ -659,15 +665,15 @@ function AdminDashboard() {
                 </span>
 
                 <h2>
-                  Human-in-the-loop
+                  AI-assisted routing
                 </h2>
 
                 <p className="dashboard-workflow-description">
-                  The agent makes the first
+                  The agent handles initial
                   classification, priority and
-                  routing decision. Your department
-                  supervises uncertain cases and
-                  handles resolution.
+                  department routing. Your
+                  department then manages and
+                  resolves assigned complaints.
                 </p>
 
 
@@ -676,11 +682,11 @@ function AdminDashboard() {
                   className="btn btn-secondary btn-full"
                   onClick={() =>
                     navigate(
-                      "/admin/manual-review"
+                      "/admin/complaints"
                     )
                   }
                 >
-                  Review AI Decisions
+                  Open Complaint Queue
                 </button>
 
               </section>

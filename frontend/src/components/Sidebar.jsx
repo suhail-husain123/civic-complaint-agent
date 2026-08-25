@@ -46,11 +46,6 @@ function Sidebar({ role }) {
       icon: "📋"
     },
     {
-      label: "Manual Review",
-      path: "/admin/manual-review",
-      icon: "?"
-    },
-    {
       label: "Escalations",
       path: "/admin/escalations",
       icon: "!"
