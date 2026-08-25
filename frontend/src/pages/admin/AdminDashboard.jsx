@@ -148,12 +148,7 @@ function AdminDashboard() {
       )
       .slice(0, 3)
 
-    console.log(
-    complaints.map((complaint) => ({
-        id: complaint.id,
-        status: complaint.status
-    }))
-    )  
+
   return (
     <div className="dashboard-layout">
 
@@ -708,5 +703,4 @@ function AdminDashboard() {
 
 
 export default AdminDashboard
-
 
