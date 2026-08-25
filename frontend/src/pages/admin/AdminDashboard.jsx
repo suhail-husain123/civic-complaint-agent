@@ -87,17 +87,16 @@ function AdminDashboard() {
     complaints.length
 
 
-  const activeComplaints =
-    dashboard?.active_complaints ??
+ const activeComplaints =
     complaints.filter(
-      (complaint) =>
-        ![
-          "RESOLVED",
-          "CLOSED"
-        ].includes(
-          complaint.status
-        )
-    ).length
+        (complaint) =>
+          ![
+            "RESOLVED",
+            "CLOSED"
+            ].includes(
+                complaint.status
+            )
+        ).length
 
 
   const criticalComplaints =
@@ -110,12 +109,11 @@ function AdminDashboard() {
 
 
   const resolvedComplaints =
-    dashboard?.resolved_complaints ??
-    complaints.filter(
-      (complaint) =>
-        complaint.status ===
-        "RESOLVED"
-    ).length
+   complaints.filter(
+     (complaint) =>
+       complaint.status ===
+       "RESOLVED"
+   ).length
 
 
   const inProgressComplaints =
